@@ -4,9 +4,11 @@ import { AiOutlineShoppingCart } from 'react-icons/ai'
 import { FiUser } from 'react-icons/fi'
 import { MdLocationOn } from 'react-icons/md'
 import { useLanguage } from '../context/LanguageContext'
+import { useCart } from '../context/CartContext'
 
 export default function Navbar() {
     const { language, setLanguage, t } = useLanguage();
+    const { totalItems, totalPrice } = useCart();
 
     return (
         <div>
@@ -57,10 +59,20 @@ export default function Navbar() {
                                     <span className="text-sm text-white">{t('login')}</span>
                                 </Link>
 
-                                <div className="flex flex-col items-center gap-1 cursor-pointer">
-                                    <AiOutlineShoppingCart className='text-white' size={20} />
+                                <Link to="/cart" className="flex flex-col items-center gap-1 cursor-pointer hover:opacity-80 relative">
+                                    <div className="relative">
+                                        <AiOutlineShoppingCart className='text-white' size={20} />
+                                        {totalItems > 0 && (
+                                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                                {totalItems > 99 ? '99+' : totalItems}
+                                            </span>
+                                        )}
+                                    </div>
                                     <span className="text-sm text-white">{t('cart')}</span>
-                                </div>
+                                    {totalPrice > 0 && (
+                                        <span className="text-xs text-yellow-300 font-semibold">{totalPrice.toLocaleString('ru-RU')} ₽</span>
+                                    )}
+                                </Link>
 
                             </div>
                         </div>
