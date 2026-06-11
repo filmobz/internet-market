@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axiosinstance from "../axiosinstance";
 import { HiOutlineShoppingCart, HiCheck, HiPlus, HiX, HiTrash } from "react-icons/hi";
 import { FiStar, FiFilter } from "react-icons/fi";
@@ -7,32 +7,23 @@ import { useLanguage } from "../context/LanguageContext";
 import { useCart } from "../context/CartContext";
 
 const allProducts = [
-  // Телефоны
   { id: 1, name: "iPhone 17 Pro Max 256GB", category: "phone", difinition: "Титановый корпус, A19 Pro чип", cost: 149990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=400" },
   { id: 2, name: "iPhone 17 Pro 128GB", category: "phone", difinition: "Камера 48MP, Dynamic Island", cost: 129990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-1inch-bluetitanium?wid=400" },
   { id: 3, name: "Samsung Galaxy S24 Ultra", category: "phone", difinition: "S Pen, 200MP камера", cost: 124990, image: "https://images.samsung.com/is/image/samsung/p6pim/ru/2401/gallery/ru-galaxy-s24-ultra-s928-sm-s928bztqser-thumb-539573637" },
   { id: 4, name: "Samsung Galaxy Z Fold 5", category: "phone", difinition: "Складной экран 7.6 дюймов", cost: 159990, image: "https://images.samsung.com/is/image/samsung/p6pim/ru/sm-f946blbgser/gallery/ru-galaxy-z-fold5-f946-sm-f946blbgser-thumb-537243856" },
   { id: 5, name: "Xiaomi 14 Pro", category: "phone", difinition: "Leica камера, Snapdragon 8 Gen 3", cost: 89990, image: "https://i02.appmifile.com/102_operator_sg/10/01/2024/c5e91e6e5a23a7e8c71f2b5e8f3a1b2c.png" },
   { id: 6, name: "Google Pixel 8 Pro", category: "phone", difinition: "Чистый Android, AI камера", cost: 94990, image: "https://lh3.googleusercontent.com/2Ma5GLQY7pzjWpNvBl3MMSaKOQwJxLxkxbVzPw8oOmW3KHMm0M17dW09dMZ_w9HFiaw" },
-
-  // Ноутбуки
   { id: 7, name: "MacBook Pro 16 M3 Max", category: "laptop", difinition: "M3 Max чип, 36GB RAM", cost: 349990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mbp16-spacegray-select-202310?wid=400" },
   { id: 8, name: "MacBook Air 15 M3", category: "laptop", difinition: "Тонкий и лёгкий, M3 чип", cost: 159990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mba15-midnight-select-202306?wid=400" },
   { id: 9, name: "ASUS ROG Strix G16", category: "laptop", difinition: "RTX 4070, Intel i9", cost: 179990, image: "https://dlcdnwebimgs.asus.com/gain/1E9E28FE-E7D5-4E98-BD08-CAFE7F7B5A60/w717/h525" },
   { id: 10, name: "Lenovo ThinkPad X1 Carbon", category: "laptop", difinition: "Бизнес ноутбук, 14 дюймов", cost: 189990, image: "https://p1-ofp.static.pub/medias/bWFzdGVyfHJvb3R8MjIyODYzfGltYWdlL3BuZ3xoMjMvaGIxLzE0MjA0NzI4" },
   { id: 11, name: "HP Spectre x360", category: "laptop", difinition: "2-в-1 трансформер, OLED", cost: 149990, image: "https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c08473937.png" },
-
-  // Планшеты
   { id: 12, name: "iPad Pro 12.9 M2", category: "tablet", difinition: "M2 чип, Liquid Retina XDR", cost: 129990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/ipad-pro-13-select-wifi-spacegray-202210?wid=400" },
   { id: 13, name: "iPad Air 5", category: "tablet", difinition: "M1 чип, 10.9 дюймов", cost: 79990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/ipad-air-select-wifi-blue-202203?wid=400" },
   { id: 14, name: "Samsung Galaxy Tab S9 Ultra", category: "tablet", difinition: "14.6 дюймов, S Pen", cost: 109990, image: "https://images.samsung.com/is/image/samsung/p6pim/ru/sm-x910nzaaser/gallery/ru-galaxy-tab-s9-ultra-wifi-x910-sm-x910nzaaser-thumb-537205315" },
-
-  // Наушники
   { id: 15, name: "AirPods Pro 2", category: "audio", difinition: "Шумоподавление, USB-C", cost: 24990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/MQD83?wid=400" },
   { id: 16, name: "Sony WH-1000XM5", category: "audio", difinition: "Лучшее шумоподавление", cost: 34990, image: "https://sony.scene7.com/is/image/sonyglobalsolutions/wh-1000xm5_Primary_image?$categorypdpnav$" },
   { id: 17, name: "AirPods Max", category: "audio", difinition: "Премиум звук, алюминий", cost: 59990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/airpods-max-select-spacegray-202011?wid=400" },
-
-  // Часы
   { id: 18, name: "Apple Watch Ultra 2", category: "watch", difinition: "Титан, GPS + Cellular", cost: 79990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/watch-ultra-2-702702?wid=400" },
   { id: 19, name: "Apple Watch Series 9", category: "watch", difinition: "S9 чип, яркий экран", cost: 44990, image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/watch-s9-702702?wid=400" },
   { id: 20, name: "Samsung Galaxy Watch 6", category: "watch", difinition: "Wear OS, BioActive", cost: 29990, image: "https://images.samsung.com/is/image/samsung/p6pim/ru/sm-r960nzkaser/gallery/ru-galaxy-watch6-classic-r960-sm-r960nzkaser-thumb-537159285" },
@@ -45,7 +36,24 @@ const categories = [
   { id: "tablet", name: "Планшеты", nameUz: "Planshetlar" },
   { id: "audio", name: "Наушники", nameUz: "Quloqchinlar" },
   { id: "watch", name: "Часы", nameUz: "Soatlar" },
+  { id: "headphones", name: "Наушники", nameUz: "Quloqchinlar" },
+  { id: "other", name: "Другое", nameUz: "Boshqalar" },
 ];
+
+const fallbackImage = "https://via.placeholder.com/400x400?text=No+Image";
+
+const normalizeCategory = (category) => {
+  const trimmed = category?.toString().trim();
+  if (!trimmed) return "other";
+  const lower = trimmed.toLowerCase();
+  if (lower === "headphones") return "headphones";
+  if (lower === "phone" || lower === "phones") return "phone";
+  if (lower.includes("laptop") || lower.includes("notebook") || lower.includes("noutbuk")) return "laptop";
+  if (lower.includes("tablet") || lower.includes("ipad") || lower.includes("planshet")) return "tablet";
+  if (lower.includes("watch") || lower.includes("fit")) return "watch";
+  if (lower.includes("audio") || lower.includes("headphone") || lower.includes("наушник")) return "headphones";
+  return lower;
+};
 
 export default function FetchCards() {
   const [products, setProducts] = useState([]);
@@ -57,18 +65,33 @@ export default function FetchCards() {
   const { t, language } = useLanguage();
   const { addToCart } = useCart();
 
+  const visibleCategories = useMemo(() => {
+    const productCats = products.map((p) => p.category || "other");
+    const unique = ["all", ...Array.from(new Set(productCats))];
+    const ordered = ["all", "phone", "laptop", "tablet", "audio", "watch", "headphones", "other"];
+    return unique.sort((a, b) => {
+      const ai = ordered.indexOf(a);
+      const bi = ordered.indexOf(b);
+      if (ai === -1 && bi === -1) return a.localeCompare(b);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }, [products]);
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const response = await axiosinstance.get("/Products");
-      const apiProducts = response.data.map(item => ({
+      const apiProducts = response.data.map((item) => ({
         ...item,
-        category: item.category || "phone",
-        image: item.image || item.avatar || "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=400"
+        category: normalizeCategory(item.category),
+        difinition: item.description || item.difinition || "",
+        cost: Number(item.cost) || 0,
+        image: item.image || item.avatar || fallbackImage,
+        id: item.id?.toString() || `${Date.now()}`,
       }));
-      // Объединяем локальные + API товары
       const combinedProducts = [...allProducts, ...apiProducts];
-      // Убираем дубликаты по id
       const uniqueProducts = combinedProducts.filter((item, index, self) =>
         index === self.findIndex((t) => t.id === item.id)
       );
@@ -85,9 +108,9 @@ export default function FetchCards() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = activeCategory === "all" 
-    ? products 
-    : products.filter(p => p.category === activeCategory);
+  const filteredProducts = activeCategory === "all"
+    ? products
+    : products.filter((p) => p.category === activeCategory);
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -101,35 +124,36 @@ export default function FetchCards() {
     e.preventDefault();
     const productToAdd = {
       name: newProduct.name,
-      category: newProduct.category,
+      category: normalizeCategory(newProduct.category),
       difinition: newProduct.difinition,
-      cost: Number(newProduct.cost),
-      image: newProduct.image || "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=400",
+      cost: Number(newProduct.cost) || 0,
+      image: newProduct.image || fallbackImage,
     };
 
     try {
-      // POST запрос в mockapi
       const response = await axiosinstance.post("/Products", productToAdd);
-      console.log("Товар добавлен в MockAPI:", response.data);
-      // Добавляем новый товар в список
-      setProducts((prev) => [...prev, { 
-        ...response.data, 
-        category: productToAdd.category,
-        image: productToAdd.image 
-      }]);
+      setProducts((prev) => [
+        ...prev,
+        {
+          ...response.data,
+          category: normalizeCategory(response.data.category || productToAdd.category),
+          difinition: response.data.description || response.data.difinition || productToAdd.difinition,
+          cost: Number(response.data.cost) || productToAdd.cost,
+          image: response.data.image || response.data.avatar || productToAdd.image,
+          id: response.data.id?.toString() || `${Date.now()}`,
+        },
+      ]);
     } catch (error) {
       console.log("Ошибка добавления:", error);
-      // Если ошибка - добавляем локально
-      setProducts((prev) => [...prev, { ...productToAdd, id: Date.now() }]);
+      setProducts((prev) => [...prev, { ...productToAdd, id: `${Date.now()}` }]);
     }
-    
+
     setNewProduct({ name: "", category: "phone", difinition: "", cost: "", image: "" });
     setShowModal(false);
   };
 
   const handleDeleteProduct = async (product) => {
-    const isLocalProduct = typeof product.id === 'number' && product.id <= 20;
-    
+    const isLocalProduct = typeof product.id === "number" && product.id <= 20;
     if (isLocalProduct) {
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
       return;
@@ -137,7 +161,6 @@ export default function FetchCards() {
 
     try {
       await axiosinstance.delete(`/Products/${product.id}`);
-      console.log("Товар удалён из MockAPI:", product.id);
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
     } catch (error) {
       console.log("Ошибка удаления:", error);
@@ -164,44 +187,42 @@ export default function FetchCards() {
 
   return (
     <div className="px-10 py-10 bg-gray-50">
-      {/* Заголовок и кнопка добавления */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <FiFilter className="text-[#a832ff]" />
-          {language === 'ru' ? 'Каталог товаров' : 'Mahsulotlar katalogi'}
+          {language === "ru" ? "Каталог товаров" : "Mahsulotlar katalogi"}
         </h2>
         <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 bg-[#a832ff] hover:bg-[#9126e6] text-white px-4 py-2 rounded-xl font-semibold transition-colors"
         >
           <HiPlus className="w-5 h-5" />
-          {language === 'ru' ? 'Добавить товар' : 'Mahsulot qo\'shish'}
+          {language === "ru" ? "Добавить товар" : "Mahsulot qo'shish"}
         </button>
       </div>
 
-      {/* Фильтры по категориям */}
       <div className="flex flex-wrap gap-3 mb-8">
-        {categories.map((cat) => (
+        {visibleCategories.map((cat) => (
           <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
             className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
-              activeCategory === cat.id
+              activeCategory === cat
                 ? "bg-[#a832ff] text-white shadow-lg scale-105"
                 : "bg-white text-gray-700 hover:bg-gray-100 shadow-md"
             }`}
           >
-            {language === 'ru' ? cat.name : cat.nameUz}
+            {language === "ru"
+              ? categories.find((item) => item.id === cat)?.name || cat
+              : categories.find((item) => item.id === cat)?.nameUz || cat}
           </button>
         ))}
       </div>
 
-      {/* Количество товаров */}
       <p className="text-gray-500 mb-4">
-        {language === 'ru' ? 'Найдено товаров:' : 'Topilgan mahsulotlar:'} {filteredProducts.length}
+        {language === "ru" ? "Найдено товаров:" : "Topilgan mahsulotlar:"} {filteredProducts.length}
       </p>
 
-      {/* Карточки товаров */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
         {filteredProducts.map((item) => (
           <div
@@ -213,21 +234,20 @@ export default function FetchCards() {
               <button
                 onClick={() => handleDeleteProduct(item)}
                 className="p-1.5 bg-white/80 rounded-full hover:bg-red-500 hover:text-white text-gray-400 transition-all duration-300"
-                title={language === 'ru' ? 'Удалить' : 'O\'chirish'}
+                title={language === "ru" ? "Удалить" : "O'chirish"}
               >
                 <HiTrash className="w-4 h-4" />
               </button>
             </div>
 
             <div className="absolute top-3 left-3 z-10">
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
-                -20%
-              </span>
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">-20%</span>
             </div>
 
             <div className="overflow-hidden rounded-xl mb-3 bg-gradient-to-br from-gray-50 to-gray-100">
               <img
                 src={item.image}
+                onError={(e) => { e.currentTarget.src = fallbackImage; }}
                 alt={item.name}
                 className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -243,43 +263,34 @@ export default function FetchCards() {
               <span className="text-xs text-gray-400 ml-1">(128)</span>
             </div>
 
-            <h2 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 min-h-[40px]">
-              {item.name}
-            </h2>
-
-            <p className="text-xs text-gray-500 line-clamp-1 mb-2">
-              {item.difinition}
-            </p>
+            <h2 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1 min-h-[40px]">{item.name}</h2>
+            <p className="text-xs text-gray-500 line-clamp-1 mb-2">{item.difinition}</p>
 
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl font-bold text-gray-900">{item.cost.toLocaleString('ru-RU')} ₽</span>
+              <span className="text-xl font-bold text-gray-900">{item.cost.toLocaleString("ru-RU")} ₽</span>
               <span className="text-sm text-gray-400 line-through">
-                {Math.round(item.cost * 1.25).toLocaleString('ru-RU')} ₽
+                {Math.round((item.cost || 0) * 1.25).toLocaleString("ru-RU")} ₽
               </span>
             </div>
 
             <button
               onClick={() => handleAddToCart(item)}
               disabled={addedIds.includes(item.id)}
-              className={`
-                w-full flex items-center justify-center gap-2
-                py-2.5 rounded-xl font-semibold text-sm
-                transition-all duration-300 shadow-md active:scale-95
-                ${addedIds.includes(item.id)
+              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 shadow-md active:scale-95 ${
+                addedIds.includes(item.id)
                   ? "bg-green-500 text-white"
                   : "bg-[#a832ff] hover:bg-[#9126e6] text-white"
-                }
-              `}
+              }`}
             >
               {addedIds.includes(item.id) ? (
                 <>
                   <HiCheck className="w-5 h-5" />
-                  <span>{language === 'ru' ? 'Добавлено!' : 'Qo\'shildi!'}</span>
+                  <span>{language === "ru" ? "Добавлено!" : "Qo'shildi!"}</span>
                 </>
               ) : (
                 <>
                   <HiOutlineShoppingCart className="w-5 h-5" />
-                  <span>{t('addToCart')}</span>
+                  <span>{t("addToCart")}</span>
                 </>
               )}
             </button>
@@ -287,98 +298,85 @@ export default function FetchCards() {
         ))}
       </div>
 
-      {/* Модальное окно добавления товара */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">
-                {language === 'ru' ? 'Добавить товар' : 'Mahsulot qo\'shish'}
-              </h3>
+              <h3 className="text-xl font-bold text-gray-800">{language === "ru" ? "Добавить товар" : "Mahsulot qo'shish"}</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
                 <HiX className="w-6 h-6" />
               </button>
             </div>
-
             <form onSubmit={handleAddProduct} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'ru' ? 'Название' : 'Nomi'}
-                </label>
+                <label className="block text-sm font-medium text-gray-700">{language === "ru" ? "Название" : "Nomi"}</label>
                 <input
-                  type="text"
                   value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a832ff]"
-                  placeholder="iPhone 17 Pro Max"
+                  onChange={(e) => setNewProduct((prev) => ({ ...prev, name: e.target.value }))}
+                  className="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#a832ff] focus:ring-[#a832ff]/30"
                   required
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'ru' ? 'Категория' : 'Kategoriya'}
-                </label>
+                <label className="block text-sm font-medium text-gray-700">{language === "ru" ? "Категория" : "Kategoriya"}</label>
                 <select
                   value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a832ff]"
+                  onChange={(e) => setNewProduct((prev) => ({ ...prev, category: e.target.value }))}
+                  className="mt-1 block w-full rounded-xl border-gray-200 bg-white shadow-sm focus:border-[#a832ff] focus:ring-[#a832ff]/30"
                 >
-                  {categories.filter(c => c.id !== 'all').map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {language === 'ru' ? cat.name : cat.nameUz}
-                    </option>
-                  ))}
+                  <option value="phone">{language === "ru" ? "Телефоны" : "Telefonlar"}</option>
+                  <option value="laptop">{language === "ru" ? "Ноутбуки" : "Noutbuklar"}</option>
+                  <option value="tablet">{language === "ru" ? "Планшеты" : "Planshetlar"}</option>
+                  <option value="audio">{language === "ru" ? "Наушники" : "Quloqchinlar"}</option>
+                  <option value="watch">{language === "ru" ? "Часы" : "Soatlar"}</option>
+                  <option value="headphones">{language === "ru" ? "Наушники" : "Quloqchinlar"}</option>
+                  <option value="other">{language === "ru" ? "Другое" : "Boshqalar"}</option>
                 </select>
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'ru' ? 'Описание' : 'Tavsif'}
-                </label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-gray-700">{language === "ru" ? "Описание" : "Tavsif"}</label>
+                <textarea
                   value={newProduct.difinition}
-                  onChange={(e) => setNewProduct({ ...newProduct, difinition: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a832ff]"
-                  placeholder="Титановый корпус, A19 Pro чип"
-                  required
+                  onChange={(e) => setNewProduct((prev) => ({ ...prev, difinition: e.target.value }))}
+                  className="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#a832ff] focus:ring-[#a832ff]/30"
+                  rows={3}
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'ru' ? 'Цена (₽)' : 'Narxi (₽)'}
-                </label>
-                <input
-                  type="number"
-                  value={newProduct.cost}
-                  onChange={(e) => setNewProduct({ ...newProduct, cost: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a832ff]"
-                  placeholder="149990"
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">{language === "ru" ? "Цена" : "Narxi"}</label>
+                  <input
+                    type="number"
+                    value={newProduct.cost}
+                    onChange={(e) => setNewProduct((prev) => ({ ...prev, cost: e.target.value }))}
+                    className="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#a832ff] focus:ring-[#a832ff]/30"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">{language === "ru" ? "Ссылка на изображение" : "Rasm URL"}</label>
+                  <input
+                    value={newProduct.image}
+                    onChange={(e) => setNewProduct((prev) => ({ ...prev, image: e.target.value }))}
+                    className="mt-1 block w-full rounded-xl border-gray-200 shadow-sm focus:border-[#a832ff] focus:ring-[#a832ff]/30"
+                  />
+                </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'ru' ? 'URL картинки' : 'Rasm URL'}
-                </label>
-                <input
-                  type="url"
-                  value={newProduct.image}
-                  onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a832ff]"
-                  placeholder="https://example.com/image.jpg"
-                />
+              <div className="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-100 transition"
+                >
+                  {language === "ru" ? "Отмена" : "Bekor qilish"}
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-[#a832ff] text-white hover:bg-[#9126e6] transition"
+                >
+                  {language === "ru" ? "Сохранить" : "Saqlash"}
+                </button>
               </div>
-
-              <button
-                type="submit"
-                className="w-full bg-[#a832ff] hover:bg-[#9126e6] text-white py-3 rounded-xl font-bold transition-colors"
-              >
-                {language === 'ru' ? 'Добавить' : 'Qo\'shish'}
-              </button>
             </form>
           </div>
         </div>
